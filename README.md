@@ -23,6 +23,7 @@ The following assumes the use of `node@>=10`.
 ## Generating Tree
 
 ```npm install typescript```
+
 ```npm install ts-node```
 
 ```ts-node scripts/generate-merkle-root.ts --input <INPUT_JSON_DIRECTORY>```
