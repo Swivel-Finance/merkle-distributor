@@ -28,5 +28,7 @@ The following assumes the use of `node@>=10`.
 
 ```ts-node scripts/generate-merkle-root.ts --input <INPUT_JSON_DIRECTORY>```
 
+e.g.
+
 ```ts-node scripts/generate-merkle-root.ts --input scripts/airdrop_list.json```
 
