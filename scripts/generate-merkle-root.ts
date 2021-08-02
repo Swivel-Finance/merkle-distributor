@@ -15,4 +15,10 @@ const json = JSON.parse(fs.readFileSync(program.input, { encoding: 'utf8' }))
 
 if (typeof json !== 'object') throw new Error('Invalid JSON')
 
-console.log(JSON.stringify(parseBalanceMap(json)))
+fs.writeFile("scripts/merkleTreeOutput.txt",JSON.stringify(parseBalanceMap(json)), function(err){
+  if (err){
+    return console.log(err);
+
+}
+  console.log('doneskies');
+});
