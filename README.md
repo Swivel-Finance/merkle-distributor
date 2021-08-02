@@ -18,3 +18,14 @@ The following assumes the use of `node@>=10`.
 ## Run Tests
 
 `yarn test`
+
+
+## Generating Tree
+
+npm install typescript
+npm install ts-node
+
+```ts-node scripts/generate-merkle-root.ts --input <INPUT_JSON_DIRECTORY>```
+
+```ts-node scripts/generate-merkle-root.ts --input scripts/airdrop_list.json```
+
