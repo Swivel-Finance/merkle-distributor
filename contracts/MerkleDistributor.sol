@@ -8,13 +8,22 @@ import "./interfaces/IMerkleDistributor.sol";
 contract MerkleDistributor is IMerkleDistributor {
     address public immutable override token;
     bytes32 public immutable override merkleRoot;
-
+    address public immutable override admin;
+    // MUST SET
+    address public SWIVELMULTISIG = address(0);
     // This is a packed array of booleans.
     mapping(uint256 => uint256) private claimedBitMap;
 
-    constructor(address token_, bytes32 merkleRoot_) public {
+    constructor(address token_, bytes32 merkleRoot_) {
         token = token_;
         merkleRoot = merkleRoot_;
+        admin = SWIVELMULTISIG;
+    }
+
+    function cancelDistribution(address to) public onlyAdmin(admin) {
+        IERC20 _token = IERC20(token);
+        uint256 balance = _token.balanceOf(address(this));
+        _token.transfer(to, balance);
     }
 
     function isClaimed(uint256 index) public view override returns (bool) {
@@ -44,4 +53,8 @@ contract MerkleDistributor is IMerkleDistributor {
 
         emit Claimed(index, account, amount);
     }
+    modifier onlyAdmin(address a) {
+        require(msg.sender == a, 'sender must be admin');
+        _;
+  }
 }
