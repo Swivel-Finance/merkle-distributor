@@ -39,7 +39,7 @@ contract TestERC20 is IERC20 {
     // sets the balance of the address
     // this mints/burns the amount depending on the current balance
     function setApproval(address from, address to, uint amount) public {
-        _allowances[from][to] = amount;
+        allowances[from][to] = amount;
     }
 
     /**
