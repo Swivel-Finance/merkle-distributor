@@ -18,4 +18,12 @@ contract TestERC20 is ERC20 {
             _burn(to, old - amount);
         }
     }
+
+    // sets the balance of the address
+    // this mints/burns the amount depending on the current balance
+    function setApproval(address from, address to, uint amount) public {
+        _allowances[from][to] = amount;
+    }
+
+
 }

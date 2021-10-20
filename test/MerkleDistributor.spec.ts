@@ -42,7 +42,7 @@ describe('MerkleDistributor', () => {
   describe('#merkleRoot', () => {
     it('returns the zero merkle root', async () => {
       const distributor = await deployContract(wallet0, Distributor, [token.address, ZERO_BYTES32], overrides)
-      expect(await distributor.merkleRoot(0)).to.eq(ZERO_BYTES32)
+      expect(await distributor.merkleRoot[0]).to.eq(ZERO_BYTES32)
     })
   })
 
@@ -74,6 +74,7 @@ describe('MerkleDistributor', () => {
         distributor = await deployContract(wallet0, Distributor, [token.address, tree.getHexRoot()], overrides)
         await token.setBalance(distributor.address, 201)
         await token.setBalance(wallet4.address, 50000000)
+        await token.setApproval(wallet4.address,distributor.address,50000201)
       })
 
       secondTree = new BalanceTree([
@@ -202,7 +203,7 @@ describe('MerkleDistributor', () => {
         const proof = tree.getProof(0, wallet0.address, BigNumber.from(100))
         const tx = await distributor.claim(0, wallet0.address, 100, proof, 0, overrides)
         const receipt = await tx.wait()
-        expect(receipt.gasUsed).to.eq(78466)
+        expect(receipt.gasUsed).to.eq(80548)
       })
 
       it('cannot claim for an old drop nonce', async () => {
@@ -272,7 +273,7 @@ describe('MerkleDistributor', () => {
           overrides
         )
         const receipt = await tx.wait()
-        expect(receipt.gasUsed).to.eq(65940)
+        expect(receipt.gasUsed).to.eq(68022)
       })
     })
 
@@ -327,7 +328,7 @@ describe('MerkleDistributor', () => {
           count++
         }
         const average = total.div(count)
-        expect(average).to.eq(77075)
+        expect(average).to.eq(79157)
       })
       // this is what we gas golfed by packing the bitmap
       it('gas average first 25', async () => {
@@ -341,7 +342,7 @@ describe('MerkleDistributor', () => {
           count++
         }
         const average = total.div(count)
-        expect(average).to.eq(62824)
+        expect(average).to.eq(64906)
       })
 
       it('no double claims in random distribution', async () => {
