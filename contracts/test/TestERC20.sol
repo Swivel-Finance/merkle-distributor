@@ -7,7 +7,6 @@ contract TestERC20 is IERC20 {
     mapping (address => uint256) private balances;
     mapping (address => mapping (address => uint256)) private allowances;
 
-    uint8 public decimals;
     uint256 public totalSupply;
     string public name; // NOTE: cannot make strings immutable
     string public symbol; // NOTE: see above
@@ -18,10 +17,9 @@ contract TestERC20 is IERC20 {
      * @param s Symbol of the token
      * @param d Decimals of the token
      */
-    constructor (string memory n, string memory s, uint8 d, uint amountToMint) public {
+    constructor (string memory n, string memory s, uint amountToMint) public {
         name = n;
         symbol = s;
-        decimals = d;
         setBalance(msg.sender, amountToMint);
     }
 
