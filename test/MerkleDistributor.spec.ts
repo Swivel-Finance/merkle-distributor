@@ -42,21 +42,21 @@ describe('MerkleDistributor', () => {
   describe('#merkleRoot', () => {
     it('returns the zero merkle root', async () => {
       const distributor = await deployContract(wallet0, Distributor, [token.address, ZERO_BYTES32], overrides)
-      expect(await distributor.merkleRoot()).to.eq(ZERO_BYTES32)
+      expect(await distributor.merkleRoot(0)).to.eq(ZERO_BYTES32)
     })
   })
 
   describe('#claim', () => {
     it('fails for empty proof', async () => {
       const distributor = await deployContract(wallet0, Distributor, [token.address, ZERO_BYTES32], overrides)
-      await expect(distributor.claim(0, wallet0.address, 10, [])).to.be.revertedWith(
+      await expect(distributor.claim(0, wallet0.address, 10, [], 0)).to.be.revertedWith(
         'MerkleDistributor: Invalid proof.'
       )
     })
 
     it('fails for invalid index', async () => {
       const distributor = await deployContract(wallet0, Distributor, [token.address, ZERO_BYTES32], overrides)
-      await expect(distributor.claim(0, wallet0.address, 10, [])).to.be.revertedWith(
+      await expect(distributor.claim(0, wallet0.address, 10, [], 0)).to.be.revertedWith(
         'MerkleDistributor: Invalid proof.'
       )
     })
