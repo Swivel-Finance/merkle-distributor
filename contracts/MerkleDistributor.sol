@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Utils/MerkleProof.sol";
 import "./Interfaces/IMerkleDistributor.sol";
 
-contract MerkleDistributor is IMerkleDistributor {
+contract IterativeMerkleDistributor is IMerkleDistributor {
     address public immutable override token;
     address public immutable override admin;
     // MUST SET
@@ -17,12 +17,14 @@ contract MerkleDistributor is IMerkleDistributor {
     
     mapping(uint256 => bool) private isCancelled;
 
+    // This event is triggered whenever a call to #iterateDistribution succeeds.
+    event newDistribution(bytes32 merkleRoot, uint256 dropNonce);
+
     constructor(address token_, bytes32 merkleRoot_) {
         token = token_;
         merkleRoot[0] = merkleRoot_;
         admin = SWIVELMULTISIG;
     }
-
     
     /// @notice Allows an admin to overwrite the current distribution with a new one 
     /// @param from The address of the wallet containing tokens to distribute
@@ -30,7 +32,7 @@ contract MerkleDistributor is IMerkleDistributor {
     /// @param amount The amount of tokens in the new distribution
     /// @param dropNonce The nonce of the drop that is currently being overwritten
     /// @param merkleRoot_ The merkle root associated with the new distribution
-    function newDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) public onlyAdmin(admin) {
+    function iterateDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) external override onlyAdmin(admin) {
         require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
         
         // remove current token balance
@@ -46,6 +48,8 @@ contract MerkleDistributor is IMerkleDistributor {
         
         // add the new distribution's merkleRoot
         merkleRoot[(dropNonce+1)] = merkleRoot_;
+
+        emit newDistribution(merkleRoot_, (dropNonce+1));
     }
 
     function isClaimed(uint256 index, uint256 dropNonce) public view override returns (bool) {
