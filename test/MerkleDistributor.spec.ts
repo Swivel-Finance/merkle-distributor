@@ -29,7 +29,7 @@ describe('MerkleDistributor', () => {
 
   let token: Contract
   beforeEach('deploy token', async () => {
-    token = await deployContract(wallet0, TestERC20, ['Token', 'TKN', 0, 0], overrides)
+    token = await deployContract(wallet0, TestERC20, ['Token', 'TKN', 0, 100000], overrides)
   })
 
   describe('#token', () => {
@@ -42,6 +42,7 @@ describe('MerkleDistributor', () => {
   describe('#merkleRoot', () => {
     it('returns the zero merkle root', async () => {
       const distributor = await deployContract(wallet0, Distributor, [token.address, ZERO_BYTES32], overrides)
+      console.log(await distributor.merkleRoot[0])
       expect(await distributor.merkleRoot[0]).to.eq(ZERO_BYTES32)
     })
   })
