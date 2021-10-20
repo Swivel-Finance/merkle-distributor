@@ -44,7 +44,7 @@ contract MerkleDistributor is IMerkleDistributor {
         // cancel previous drop nonce / previous distribution
         isCancelled[dropNonce] = true;
         
-        // overwrite old merkleRoot with new distribution's merkleRoot
+        // add the new distribution's merkleRoot
         merkleRoot[(dropNonce+1)] = merkleRoot_;
     }
 
