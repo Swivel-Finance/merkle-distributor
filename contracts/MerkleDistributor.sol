@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >0.6.11;
+pragma solidity >=0.5.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./Utils/MerkleProof.sol";
-import "./Interfaces/IMerkleDistributor.sol";
+import "./utils/MerkleProof.sol";
+import "./interfaces/IMerkleDistributor.sol";
 
-contract IterativeMerkleDistributor is IMerkleDistributor {
+contract MerkleDistributor is IMerkleDistributor {
     address public immutable override token;
     address public immutable override admin;
     // MUST SET
@@ -20,7 +20,7 @@ contract IterativeMerkleDistributor is IMerkleDistributor {
     // This event is triggered whenever a call to #iterateDistribution succeeds.
     event newDistribution(bytes32 merkleRoot, uint256 dropNonce);
 
-    constructor(address token_, bytes32 merkleRoot_) {
+    constructor(address token_, bytes32 merkleRoot_) public {
         token = token_;
         merkleRoot[0] = merkleRoot_;
         admin = SWIVELMULTISIG;
