@@ -7,20 +7,19 @@ import "./Interfaces/IMerkleDistributor.sol";
 
 contract MerkleDistributor is IMerkleDistributor {
     address public immutable override token;
-    bytes32 public override merkleRoot;
     address public immutable override admin;
     // MUST SET
     address public SWIVELMULTISIG = address(0);
     // This is a packed array of booleans.
-    mapping(uint256 => uint256) private claimedBitMap;
+    mapping(uint256 => bytes32) private merkleRoot;
     
-    mapping(uint256 => mapping (uint256 => uint256)) private claimedBitMapNested;
+    mapping(uint256 => mapping (uint256 => uint256)) private claimedBitMap;
     
     mapping(uint256 => bool) private isCancelled;
 
     constructor(address token_, bytes32 merkleRoot_) {
         token = token_;
-        merkleRoot = merkleRoot_;
+        merkleRoot[0] = merkleRoot_;
         admin = SWIVELMULTISIG;
     }
 
@@ -36,17 +35,17 @@ contract MerkleDistributor is IMerkleDistributor {
         // transfer enough tokens for new distribution
         _token.transferFrom(from, address(this), amount);
         
-        // cancel previous drop nonce
+        // cancel previous drop nonce / previous distribution
         isCancelled[dropNonce] = true;
         
-        // overwrite old merkleRoot with new merkleRoot
-        merkleRoot = merkleRoot_;
+        // overwrite old merkleRoot with new distribution's merkleRoot
+        merkleRoot[dropNonce] = merkleRoot_;
     }
 
     function isClaimed(uint256 index, uint256 dropNonce) public view override returns (bool) {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        uint256 claimedWord = claimedBitMapNested[dropNonce][claimedWordIndex];
+        uint256 claimedWord = claimedBitMap[dropNonce][claimedWordIndex];
         uint256 mask = (1 << claimedBitIndex);
         return claimedWord & mask == mask;
     }
@@ -54,7 +53,7 @@ contract MerkleDistributor is IMerkleDistributor {
     function _setClaimed(uint256 index, uint256 dropNonce) private {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        claimedBitMapNested[dropNonce][claimedWordIndex] = claimedBitMapNested[dropNonce][claimedWordIndex] | (1 << claimedBitIndex);
+        claimedBitMap[dropNonce][claimedWordIndex] = claimedBitMap[dropNonce][claimedWordIndex] | (1 << claimedBitIndex);
     }
 
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external override {
@@ -63,7 +62,7 @@ contract MerkleDistributor is IMerkleDistributor {
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
-        require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
+        require(MerkleProof.verify(merkleProof, merkleRoot[dropNonce], node), 'MerkleDistributor: Invalid proof.');
 
         // Mark it claimed and send the token.
         _setClaimed(index, dropNonce);
