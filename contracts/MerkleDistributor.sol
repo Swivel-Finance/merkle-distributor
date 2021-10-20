@@ -8,10 +8,10 @@ import "./interfaces/IMerkleDistributor.sol";
 contract MerkleDistributor is IMerkleDistributor {
     address public immutable override token;
     address public immutable override admin;
-    // MUST SET
-    address public SWIVELMULTISIG = address(0);
+    // Must set and replace msg.sender as admin
+    address public immutable SWIVELMULTISIG = address(0);
     // This is a packed array of booleans.
-    mapping(uint256 => bytes32) private merkleRoot;
+    mapping(uint256 => bytes32) public merkleRoot;
     
     mapping(uint256 => mapping (uint256 => uint256)) private claimedBitMap;
     
@@ -23,7 +23,7 @@ contract MerkleDistributor is IMerkleDistributor {
     constructor(address token_, bytes32 merkleRoot_) public {
         token = token_;
         merkleRoot[0] = merkleRoot_;
-        admin = SWIVELMULTISIG;
+        admin = msg.sender;
     }
     
     /// @notice Allows an admin to overwrite the current distribution with a new one 
