@@ -12,7 +12,7 @@ interface IMerkleDistributor {
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external;
     // Allows an admin to overwrite the current distribution with a new one 
-    function iterateDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) external;
+    function iterateDistribution(address from, address to, uint256 amount, bytes32 merkleRoot_, uint256 dropNonce) external;
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(uint256 index, address account, uint256 amount);
 }
