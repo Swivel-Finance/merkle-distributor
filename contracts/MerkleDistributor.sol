@@ -24,6 +24,12 @@ contract MerkleDistributor is IMerkleDistributor {
     }
 
     
+    /// @notice Allows an admin to overwrite the current distribution with a new one 
+    /// @param from The address of the wallet containing tokens to distribute
+    /// @param to The address that will receive any currently remaining distributions (will normally be the same as from)
+    /// @param amount The amount of tokens in the new distribution
+    /// @param dropNonce The nonce of the drop that is currently being overwritten
+    /// @param merkleRoot_ The merkle root associated with the new distribution
     function resetDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) public onlyAdmin(admin) {
         require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
         
@@ -39,7 +45,7 @@ contract MerkleDistributor is IMerkleDistributor {
         isCancelled[dropNonce] = true;
         
         // overwrite old merkleRoot with new distribution's merkleRoot
-        merkleRoot[dropNonce] = merkleRoot_;
+        merkleRoot[(dropNonce+1)] = merkleRoot_;
     }
 
     function isClaimed(uint256 index, uint256 dropNonce) public view override returns (bool) {
