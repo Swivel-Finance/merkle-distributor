@@ -1,4 +1,6 @@
-# @uniswap/merkle-distributor
+# @Swivel-Finace/merkle-distributor
+
+A merkle distributor that allows an admin to iterate/overwrite previous distributions.
 
 [![Tests](https://github.com/Uniswap/merkle-distributor/workflows/Tests/badge.svg)](https://github.com/Uniswap/merkle-distributor/actions?query=workflow%3ATests)
 [![Lint](https://github.com/Uniswap/merkle-distributor/workflows/Lint/badge.svg)](https://github.com/Uniswap/merkle-distributor/actions?query=workflow%3ALint)
