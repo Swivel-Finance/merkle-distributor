@@ -116,6 +116,24 @@ describe('MerkleDistributor', () => {
         expect(await distributor.isClaimed(1, 0)).to.eq(false)
       })
 
+
+      it('sets #isClaimed on secondTree', async () => {
+        await distributor.iterateDistribution(
+          wallet4.address,
+          wallet4.address,
+          5000,
+          secondTree.getHexRoot(),
+          0,
+          overrides
+        )
+        const proof = tree.getProof(0, wallet2.address, BigNumber.from(102))
+        expect(await distributor.isClaimed(0, 1)).to.eq(false)
+        expect(await distributor.isClaimed(1, 1)).to.eq(false)
+        await distributor.claim(0, wallet2.address, 102, proof, 1, overrides)
+        expect(await distributor.isClaimed(0, 1)).to.eq(true)
+        expect(await distributor.isClaimed(1, 1)).to.eq(false)
+      })
+
       it('cannot allow two claims', async () => {
         const proof0 = tree.getProof(0, wallet0.address, BigNumber.from(100))
         await distributor.claim(0, wallet0.address, 100, proof0, 0, overrides)
@@ -201,6 +219,7 @@ describe('MerkleDistributor', () => {
           distributor.claim(1, wallet1.address, 101, tree.getProof(1, wallet1.address, BigNumber.from(101)), 0, overrides)
         ).to.be.revertedWith('Drop nonce already cancelled')
       })
+
     })
     
     describe('larger tree', () => {
