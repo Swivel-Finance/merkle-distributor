@@ -30,7 +30,7 @@ contract MerkleDistributor is IMerkleDistributor {
     /// @param amount The amount of tokens in the new distribution
     /// @param dropNonce The nonce of the drop that is currently being overwritten
     /// @param merkleRoot_ The merkle root associated with the new distribution
-    function resetDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) public onlyAdmin(admin) {
+    function newDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) public onlyAdmin(admin) {
         require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
         
         // remove current token balance
