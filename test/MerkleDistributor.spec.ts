@@ -74,7 +74,7 @@ describe('MerkleDistributor', () => {
         distributor = await deployContract(wallet0, Distributor, [token.address, tree.getHexRoot()], overrides)
         await token.setBalance(distributor.address, 201)
         await token.setBalance(wallet4.address, 50000000)
-        await token.setApproval(wallet4.address,distributor.address,50000201)
+        await token.setApproval(wallet4.address, distributor.address, 50000201)
       })
 
       secondTree = new BalanceTree([

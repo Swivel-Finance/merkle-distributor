@@ -20,7 +20,7 @@ contract TestERC20 is IERC20 {
      * @param s Symbol of the token
      * @param d Decimals of the token
      */
-    constructor (string memory n, string memory s, uint8 d) {
+    constructor (string memory n, string memory s, uint8 d, uint amountToMint) {
         name = n;
         symbol = s;
         decimals = d;
