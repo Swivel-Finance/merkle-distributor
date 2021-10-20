@@ -104,7 +104,7 @@ describe('MerkleDistributor', () => {
         const proof0 = tree.getProof(0, wallet0.address, BigNumber.from(100))
         await token.setBalance(distributor.address, 99)
         await expect(distributor.claim(0, wallet0.address, 100, proof0, 0, overrides)).to.be.revertedWith(
-          'erc20 transfer amount exceeds allowance'
+          'revert erc20 transfer amount exceeds allowance'
         )
       })
 
