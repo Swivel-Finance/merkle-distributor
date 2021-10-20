@@ -15,7 +15,6 @@ contract TestERC20 is IERC20 {
      * @dev Sets the values for {name} and {symbol}.
      * @param n Name of the token
      * @param s Symbol of the token
-     * @param d Decimals of the token
      */
     constructor (string memory n, string memory s, uint amountToMint) public {
         name = n;
