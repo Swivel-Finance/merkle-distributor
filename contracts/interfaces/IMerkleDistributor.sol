@@ -10,9 +10,9 @@ interface IMerkleDistributor {
     // Returns the admin 
     function admin() external view returns (address);
     // Returns true if the index has been marked claimed.
-    function isClaimed(uint256 index) external view returns (bool);
+    function isClaimed(uint256 index, uint256 dropNonce) external view returns (bool);
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external;
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external;
 
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(uint256 index, address account, uint256 amount);

@@ -1,18 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity =0.6.11;
+pragma solidity >0.6.11;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/cryptography/MerkleProof.sol";
-import "./interfaces/IMerkleDistributor.sol";
+import "./Utils/MerkleProof.sol";
+import "./Interfaces/IMerkleDistributor.sol";
 
 contract MerkleDistributor is IMerkleDistributor {
     address public immutable override token;
-    bytes32 public immutable override merkleRoot;
+    bytes32 public override merkleRoot;
     address public immutable override admin;
     // MUST SET
     address public SWIVELMULTISIG = address(0);
     // This is a packed array of booleans.
     mapping(uint256 => uint256) private claimedBitMap;
+    
+    mapping(uint256 => mapping (uint256 => uint256)) private claimedBitMapNested;
+    
+    mapping(uint256 => bool) private isCancelled;
 
     constructor(address token_, bytes32 merkleRoot_) {
         token = token_;
@@ -20,39 +24,54 @@ contract MerkleDistributor is IMerkleDistributor {
         admin = SWIVELMULTISIG;
     }
 
-    function cancelDistribution(address to) public onlyAdmin(admin) {
+    
+    function resetDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) public onlyAdmin(admin) {
+        require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
+        
+        // remove current token balance
         IERC20 _token = IERC20(token);
         uint256 balance = _token.balanceOf(address(this));
         _token.transfer(to, balance);
+        
+        // transfer enough tokens for new distribution
+        _token.transferFrom(from, address(this), amount);
+        
+        // cancel previous drop nonce
+        isCancelled[dropNonce] = true;
+        
+        // overwrite old merkleRoot with new merkleRoot
+        merkleRoot = merkleRoot_;
     }
 
-    function isClaimed(uint256 index) public view override returns (bool) {
+    function isClaimed(uint256 index, uint256 dropNonce) public view override returns (bool) {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        uint256 claimedWord = claimedBitMap[claimedWordIndex];
+        uint256 claimedWord = claimedBitMapNested[dropNonce][claimedWordIndex];
         uint256 mask = (1 << claimedBitIndex);
         return claimedWord & mask == mask;
     }
 
-    function _setClaimed(uint256 index) private {
+    function _setClaimed(uint256 index, uint256 dropNonce) private {
         uint256 claimedWordIndex = index / 256;
         uint256 claimedBitIndex = index % 256;
-        claimedBitMap[claimedWordIndex] = claimedBitMap[claimedWordIndex] | (1 << claimedBitIndex);
+        claimedBitMapNested[dropNonce][claimedWordIndex] = claimedBitMapNested[dropNonce][claimedWordIndex] | (1 << claimedBitIndex);
     }
 
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external override {
-        require(!isClaimed(index), 'MerkleDistributor: Drop already claimed.');
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external override {
+        require(!isClaimed(index, dropNonce), 'MerkleDistributor: Drop already claimed.');
+        require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
 
         // Verify the merkle proof.
         bytes32 node = keccak256(abi.encodePacked(index, account, amount));
         require(MerkleProof.verify(merkleProof, merkleRoot, node), 'MerkleDistributor: Invalid proof.');
 
         // Mark it claimed and send the token.
-        _setClaimed(index);
+        _setClaimed(index, dropNonce);
         require(IERC20(token).transfer(account, amount), 'MerkleDistributor: Transfer failed.');
 
         emit Claimed(index, account, amount);
     }
+    
     modifier onlyAdmin(address a) {
         require(msg.sender == a, 'sender must be admin');
         _;
