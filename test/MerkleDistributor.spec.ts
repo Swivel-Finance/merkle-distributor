@@ -42,8 +42,7 @@ describe('MerkleDistributor', () => {
   describe('#merkleRoot', () => {
     it('returns the zero merkle root', async () => {
       const distributor = await deployContract(wallet0, Distributor, [token.address, ZERO_BYTES32], overrides)
-      console.log(await distributor.merkleRoot[0])
-      expect(await distributor.merkleRoot[0]).to.eq(ZERO_BYTES32)
+      expect(await distributor._merkleRoot[0]).to.eq(ZERO_BYTES32)
     })
   })
 
@@ -128,7 +127,7 @@ describe('MerkleDistributor', () => {
           0,
           overrides
         )
-        const proof = tree.getProof(0, wallet2.address, BigNumber.from(102))
+        const proof = secondTree.getProof(0, wallet2.address, BigNumber.from(102))
         expect(await distributor.isClaimed(0, 1)).to.eq(false)
         expect(await distributor.isClaimed(1, 1)).to.eq(false)
         await distributor.claim(0, wallet2.address, 102, proof, 1, overrides)
@@ -218,7 +217,7 @@ describe('MerkleDistributor', () => {
         )
 
         await expect(
-          distributor.claim(1, wallet1.address, 101, tree.getProof(1, wallet1.address, BigNumber.from(101)), 0, overrides)
+          distributor.claim(1, wallet1.address, 101, secondTree.getProof(1, wallet1.address, BigNumber.from(101)), 0, overrides)
         ).to.be.revertedWith('Drop nonce already cancelled')
       })
 

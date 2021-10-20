@@ -25,7 +25,10 @@ contract MerkleDistributor is IMerkleDistributor {
         merkleRoot[0] = merkleRoot_;
         admin = msg.sender;
     }
-    
+
+    function _merkleRoot(uint256 dropNonce) public view returns (bytes32) {
+        return merkleRoot[dropNonce];
+    }
     /// @notice Allows an admin to overwrite the current distribution with a new one 
     /// @param from The address of the wallet containing tokens to distribute
     /// @param to The address that will receive any currently remaining distributions (will normally be the same as from)
