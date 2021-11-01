@@ -1,36 +1,41 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >0.6.11;
+pragma solidity >=0.5.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./Utils/MerkleProof.sol";
-import "./Interfaces/IMerkleDistributor.sol";
+import "./utils/MerkleProof.sol";
+import "./interfaces/IMerkleDistributor.sol";
 
 contract MerkleDistributor is IMerkleDistributor {
     address public immutable override token;
     address public immutable override admin;
-    // MUST SET
-    address public SWIVELMULTISIG = address(0);
+    // Must set and replace msg.sender as admin
+    address public immutable SWIVELMULTISIG = address(0);
     // This is a packed array of booleans.
-    mapping(uint256 => bytes32) private merkleRoot;
+    mapping(uint256 => bytes32) public merkleRoot;
     
     mapping(uint256 => mapping (uint256 => uint256)) private claimedBitMap;
     
     mapping(uint256 => bool) private isCancelled;
 
-    constructor(address token_, bytes32 merkleRoot_) {
+    // This event is triggered whenever a call to #iterateDistribution succeeds.
+    event newDistribution(bytes32 merkleRoot, uint256 dropNonce);
+
+    constructor(address token_, bytes32 merkleRoot_) public {
         token = token_;
         merkleRoot[0] = merkleRoot_;
-        admin = SWIVELMULTISIG;
+        admin = msg.sender;
     }
 
-    
+    function _merkleRoot(uint256 dropNonce) public view returns (bytes32) {
+        return merkleRoot[dropNonce];
+    }
     /// @notice Allows an admin to overwrite the current distribution with a new one 
     /// @param from The address of the wallet containing tokens to distribute
     /// @param to The address that will receive any currently remaining distributions (will normally be the same as from)
     /// @param amount The amount of tokens in the new distribution
     /// @param dropNonce The nonce of the drop that is currently being overwritten
     /// @param merkleRoot_ The merkle root associated with the new distribution
-    function newDistribution(address from, address to, uint256 amount, uint256 dropNonce, bytes32 merkleRoot_) public onlyAdmin(admin) {
+    function iterateDistribution(address from, address to, uint256 amount, bytes32 merkleRoot_, uint256 dropNonce) external override onlyAdmin(admin) {
         require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
         
         // remove current token balance
@@ -46,6 +51,8 @@ contract MerkleDistributor is IMerkleDistributor {
         
         // add the new distribution's merkleRoot
         merkleRoot[(dropNonce+1)] = merkleRoot_;
+
+        emit newDistribution(merkleRoot_, (dropNonce+1));
     }
 
     function isClaimed(uint256 index, uint256 dropNonce) public view override returns (bool) {
