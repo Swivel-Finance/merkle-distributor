@@ -100,7 +100,7 @@ contract MerkleDistributor is IMerkleDistributor {
     }
   
     modifier unpaused() {
-        require(!paused, 'markets are paused');
+        require(!paused, 'redemptions are paused');
         _;
     }
 }
