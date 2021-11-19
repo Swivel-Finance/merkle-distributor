@@ -10,6 +10,7 @@ contract MerkleDistributor is IMerkleDistributor {
     address public immutable override admin;
     // Must set and replace msg.sender as admin
     address public immutable SWIVELMULTISIG = address(0);
+    bool public paused;
     // This is a packed array of booleans.
     mapping(uint256 => bytes32) public merkleRoot;
     
@@ -37,6 +38,9 @@ contract MerkleDistributor is IMerkleDistributor {
     /// @param merkleRoot_ The merkle root associated with the new distribution
     function iterateDistribution(address from, address to, uint256 amount, bytes32 merkleRoot_, uint256 dropNonce) external override onlyAdmin(admin) {
         require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
+        
+        // unpause redemptions
+        pause(false);
         
         // remove current token balance
         IERC20 _token = IERC20(token);
@@ -69,7 +73,7 @@ contract MerkleDistributor is IMerkleDistributor {
         claimedBitMap[dropNonce][claimedWordIndex] = claimedBitMap[dropNonce][claimedWordIndex] | (1 << claimedBitIndex);
     }
 
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external override {
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external unpaused() override {
         require(!isClaimed(index, dropNonce), 'MerkleDistributor: Drop already claimed.');
         require(!isCancelled[dropNonce], 'Drop nonce already cancelled');
 
@@ -83,9 +87,20 @@ contract MerkleDistributor is IMerkleDistributor {
 
         emit Claimed(index, account, amount);
     }
+    /// @notice Called by admin at any point to pause / unpause market transactions
+    /// @param b Boolean which indicates the markets paused status
+    function pause(bool b) public onlyAdmin(admin) override returns (bool) {
+        paused = b;
+        return true;
+  }
     
     modifier onlyAdmin(address a) {
         require(msg.sender == a, 'sender must be admin');
         _;
-  }
+    }
+  
+    modifier unpaused() {
+        require(!paused, 'markets are paused');
+        _;
+    }
 }

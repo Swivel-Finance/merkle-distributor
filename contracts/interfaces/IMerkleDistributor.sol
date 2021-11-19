@@ -13,6 +13,8 @@ interface IMerkleDistributor {
     function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external;
     // Allows an admin to overwrite the current distribution with a new one 
     function iterateDistribution(address from, address to, uint256 amount, bytes32 merkleRoot_, uint256 dropNonce) external;
+    // Allows an admin to pause the current distribution 
+    function pause(bool b) external returns (bool);
     // This event is triggered whenever a call to #claim succeeds.
     event Claimed(uint256 index, address account, uint256 amount);
 }
