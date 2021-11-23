@@ -104,7 +104,7 @@ describe('MerkleDistributor', () => {
         const proof0 = tree.getProof(0, wallet0.address, BigNumber.from(100))
         await token.setBalance(distributor.address, 99)
         await expect(distributor.claim(0, wallet0.address, 100, proof0, 0, overrides)).to.be.revertedWith(
-          'VM Exception while processing transaction: revert erc20 transfer amount exceeds balance'
+          'RuntimeError: VM Exception while processing transaction: revert erc20 transfer amount exceeds balance'
         )
       })
 
@@ -203,7 +203,7 @@ describe('MerkleDistributor', () => {
         const proof = tree.getProof(0, wallet0.address, BigNumber.from(100))
         const tx = await distributor.claim(0, wallet0.address, 100, proof, 0, overrides)
         const receipt = await tx.wait()
-        expect(receipt.gasUsed).to.eq(80182)
+        expect(receipt.gasUsed).to.eq(81058)
       })
 
       it('cannot claim for an old drop nonce', async () => {
@@ -254,7 +254,7 @@ describe('MerkleDistributor', () => {
         const proof = tree.getProof(9, wallets[9].address, BigNumber.from(10))
         const tx = await distributor.claim(9, wallets[9].address, 10, proof, 0, overrides)
         const receipt = await tx.wait()
-        expect(receipt.gasUsed).to.eq(82676)
+        expect(receipt.gasUsed).to.eq(83552)
       })
 
       it('gas second down about 15k', async () => {
@@ -273,7 +273,7 @@ describe('MerkleDistributor', () => {
           overrides
         )
         const receipt = await tx.wait()
-        expect(receipt.gasUsed).to.eq(67656)
+        expect(receipt.gasUsed).to.eq(68532)
       })
     })
 
@@ -309,13 +309,13 @@ describe('MerkleDistributor', () => {
         const proof = tree.getProof(50000, wallet0.address, BigNumber.from(100))
         const tx = await distributor.claim(50000, wallet0.address, 100, proof, 0, overrides)
         const receipt = await tx.wait()
-        expect(receipt.gasUsed).to.eq(93366)
+        expect(receipt.gasUsed).to.eq(94242)
       })
       it('gas deeper node', async () => {
         const proof = tree.getProof(90000, wallet0.address, BigNumber.from(100))
         const tx = await distributor.claim(90000, wallet0.address, 100, proof, 0, overrides)
         const receipt = await tx.wait()
-        expect(receipt.gasUsed).to.eq(93302)
+        expect(receipt.gasUsed).to.eq(94178)
       })
       it('gas average random distribution', async () => {
         let total: BigNumber = BigNumber.from(0)
@@ -328,7 +328,7 @@ describe('MerkleDistributor', () => {
           count++
         }
         const average = total.div(count)
-        expect(average).to.eq(78791)
+        expect(average).to.eq(79667)
       })
       // this is what we gas golfed by packing the bitmap
       it('gas average first 25', async () => {
