@@ -10,9 +10,9 @@ interface IMerkleDistributor {
     // Returns true if the index has been marked claimed.
     function isClaimed(uint256 index, uint256 dropNonce) external view returns (bool);
     // Claim the given amount of the token to the given address. Reverts if the inputs are invalid.
-    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof, uint256 dropNonce) external;
+    function claim(uint256 index, address account, uint256 amount, bytes32[] calldata merkleProof) external;
     // Allows an admin to overwrite the current distribution with a new one 
-    function iterateDistribution(address from, address to, uint256 amount, bytes32 merkleRoot_, uint256 dropNonce) external;
+    function iterateDistribution(address from, address to, uint256 amount, bytes32 merkleRoot_) external;
     // Allows an admin to pause the current distribution 
     function pause(bool b) external returns (bool);
     // This event is triggered whenever a call to #claim succeeds.
